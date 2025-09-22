@@ -30,6 +30,13 @@ def parse_args() -> argparse.Namespace:
         default=os.environ.get("GITLAB_PROJECT_ID"),
         help="GitLab project ID"
     )
+    parser.add_argument(
+        "--tag-name",
+        required=False,
+        default=os.environ.get("TAG_NAME"),
+        help="Tag name to verify"
+    )
+
     return parser.parse_args()
 
 def login_to_gitlab(gitlab_url: str, private_token: str) -> gitlab.Gitlab:
@@ -37,35 +44,41 @@ def login_to_gitlab(gitlab_url: str, private_token: str) -> gitlab.Gitlab:
     gl.auth()
     return gl
 
-def get_tag_project(gl: gitlab.Gitlab, pid_repository: str) -> Iterable:
+def get_pipeline_for_tag(gl: gitlab.Gitlab, pid_repository: str, tag_name: str) -> List:
     errors = []
-
     try:
         project = gl.projects.get(pid_repository)
-        tags = project.tags.list()
-        return tags
+        pipelines = project.pipelines.list(ref=tag_name)
+        return pipelines
     except GitlabError as e:  # falta permissão, protegidos por política, etc.
         errors.append((pid_repository, str(e)))
     except Exception as e:
         errors.append((pid_repository, str(e)))
-
-def verify_tags_in_environment(tags: List, environment: str) -> List[str]:
-    verified_tags = []
-    for tag in tags:
-        if environment in tag.name:
-            verified_tags.append(tag.name)
-    return verified_tags
+    
+    if not pipelines:
+        print(f"Não foi encontrado a tag: {tag_name}")
+        return 1
 
 def main():
     args = parse_args()
-
+    # Login no GitLab
     gl = login_to_gitlab(args.gitlab_url, args.private_token)
-    tags = get_tag_project(gl, args.project_id)
 
-    # verificando para subir nos ambientes
-    for tag in tags:
-        print(tag.name)
+    get_pipeline_for_tag(gl, args.project_id, args.tag_name)
 
+    pipelines = get_pipeline_for_tag(gl, args.project_id, args.tag_name)
+
+    # verifica se algum pipeline já rodou em homologação com sucesso
+    homologation_check = any(
+        p.status == "success" and any(b.environment and b.environment['name'] == "homologation" for b in p.jobs.list())
+        for p in pipelines
+    )
+
+    if not homologation_check:
+        print(f"Tag {args.tag_run} ainda não passou por homologação!")
+        exit(1)
+    else:
+        print(f"Tag {args.tag_run} já passou em homologação, pode seguir para produção.")
 
 if __name__ == "__main__":
     sys.exit(main())
