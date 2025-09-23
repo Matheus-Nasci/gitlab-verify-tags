@@ -1,4 +1,4 @@
-# GitLab Verify Tags For Deployer Branch
+# GitLab Verify Tags For Environment
 
 Script em python para verificar se a tag já passou pela branchs específica antes de subir para PRD (production)
 
