@@ -26,7 +26,7 @@ Argumentos via CLI
 python3 verify_tags.py 
     --gitlab-url https://gitlab.seu-dominio.com \
     --private-token TOKEN_EXEMPLO \
-    --project-id PID_PROJETO 
-    --tag-name TAG
-    --branch-name SUA_BRANCH 
+    --project-id ${PID_PROJECT_VAULT} \
+    --tag-name ${CI_COMMIT_TAG} \
+    --branch-name ${CI_COMMIT_BRANCH}
 ```
