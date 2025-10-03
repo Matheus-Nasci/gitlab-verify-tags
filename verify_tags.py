@@ -60,7 +60,7 @@ def parse_args() -> argparse.Namespace:
 
 def login_to_gitlab(gitlab_url: str, private_token: str, ignore_ssl: bool) -> gitlab.Gitlab:
     try:
-        
+
         if ignore_ssl.lower() == "true":
             gl = gitlab.Gitlab(gitlab_url, private_token=private_token, ssl_verify=False)
         else:
@@ -106,7 +106,11 @@ def main():
     args = parse_args()
     gl = login_to_gitlab(args.gitlab_url, args.private_token, args.ignore_ssl.lower())
     commit_sha = get_commit_from_tag(gl, args.project_id, args.tag_name)
-    check_branch_pipeline(gl, args.project_id, commit_sha, args.tag_name, args.branch_name)
+    permission_deploy_tag = check_branch_pipeline(gl, args.project_id, commit_sha, args.tag_name, args.branch_name)
+
+    if not permission_deploy_tag:
+        print(f"Tag {args.tag_name} is NOT authorized for production deployment.")
+        exit(1)
 
 if __name__ == "__main__":
     sys.exit(main())
