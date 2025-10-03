@@ -109,7 +109,7 @@ def main():
     permission_deploy_tag = check_branch_pipeline(gl, args.project_id, commit_sha, args.tag_name, args.branch_name)
 
     if not permission_deploy_tag:
-        print(f"\033[91mTag {args.tag_name} is NOT authorized for production deployment.\033[0m", file=sys.stderr)
+        print(f"Tag {args.tag_name} is NOT authorized for production deployment")
         raise SystemExit("Pipeline verification failed. Exiting.")
 
 if __name__ == "__main__":
