@@ -49,12 +49,23 @@ def parse_args() -> argparse.Namespace:
         default=os.environ.get("BRANCH_NAME"),
         help="Branch name to check pipelines"
     )
+    parser.add_argument(
+        "--ignore-ssl",
+        required=True,
+        default=os.environ.get("IGNORE_SSL"),
+        help="Ignore SSL verification certificates"
+    )
 
     return parser.parse_args()
 
-def login_to_gitlab(gitlab_url: str, private_token: str) -> gitlab.Gitlab:
+def login_to_gitlab(gitlab_url: str, private_token: str, ignore_ssl: bool) -> gitlab.Gitlab:
     try:
-        gl = gitlab.Gitlab(gitlab_url, private_token=private_token)
+        
+        if ignore_ssl.lower() == "true":
+            gl = gitlab.Gitlab(gitlab_url, private_token=private_token, ssl_verify=False)
+        else:
+            gl = gitlab.Gitlab(gitlab_url, private_token=private_token)
+
         gl.auth()
         return gl
     except GitlabError as e:
@@ -93,7 +104,7 @@ def check_branch_pipeline(gl: gitlab.Gitlab, project_id: str, commit_sha: str, t
 
 def main():
     args = parse_args()
-    gl = login_to_gitlab(args.gitlab_url, args.private_token)
+    gl = login_to_gitlab(args.gitlab_url, args.private_token, args.ignore_ssl.lower())
     commit_sha = get_commit_from_tag(gl, args.project_id, args.tag_name)
     check_branch_pipeline(gl, args.project_id, commit_sha, args.tag_name, args.branch_name)
 

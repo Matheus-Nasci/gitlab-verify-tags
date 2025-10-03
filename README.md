@@ -19,6 +19,7 @@ Argumentos com .ENV
 - `GITLAB_PROJECT_ID` – ID do projeto (ex.: '1023090123')
 - `TAG_NAME` – Tag que está rodando no momento para ser analisada e verificar se passou pela branch (ex.: 'v1.5.8')
 - `BRANCH_NAME` – Branch a ser analisada (ex.: 'homologation')
+- `IGNORE_SSL` – Ignore a verificação de SSL e cerificação para conexão com o gitlab
 
 Argumentos via CLI
 
@@ -26,7 +27,8 @@ Argumentos via CLI
 python3 verify_tags.py 
     --gitlab-url https://gitlab.seu-dominio.com \
     --private-token TOKEN_EXEMPLO \
-    --project-id ${PID_PROJECT_VAULT} \
+    --project-id ${PROJECT_PID} \
     --tag-name ${CI_COMMIT_TAG} \
-    --branch-name ${CI_COMMIT_BRANCH}
+    --branch-name ${CI_COMMIT_BRANCH} \
+    --ignore-ssl ${IGNORE_SSL}
 ```
