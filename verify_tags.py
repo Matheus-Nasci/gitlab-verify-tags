@@ -2,11 +2,14 @@ import os
 import sys
 import gitlab
 import argparse
+import urllib3
 from typing import List
 from dotenv import load_dotenv
 from gitlab.exceptions import GitlabError
 
 load_dotenv()
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def handle_gitlab_error(context: str, error: Exception, exit_on_error: bool = True):
     if isinstance(error, GitlabError):
