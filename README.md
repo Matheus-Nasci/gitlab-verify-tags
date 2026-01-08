@@ -32,3 +32,7 @@ python3 verify_tags.py
     --branch-name ${CI_COMMIT_BRANCH} \
     --ignore-ssl ${IGNORE_SSL}
 ```
+
+python3 verify_tags.py --gitlab-url https://gitlab.com/ --private-token glpat-h3PMT0MLhbqCPvP-d10KCG86MQp1OmdyYXQ4Cw.01.121ycu846 --project-id 74642917 --tag-name v1.1.6 --ignore-ssl true
+
+EC2, EKS, ECR, LAMBDA
